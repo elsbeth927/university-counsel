@@ -46,19 +46,17 @@ begin
   return found;
 end;$$;
 
--- Apply permissions dynamically so Supabase resolves the functions only after
--- the CREATE FUNCTION statements above have completed.
-do $permissions$
-begin
-  execute 'revoke all on function public.create_pathway_application(text,text,text,jsonb,integer,text) from public';
-  execute 'revoke all on function public.load_pathway_application(text) from public';
-  execute 'revoke all on function public.save_pathway_application(text,text,text,jsonb,integer,text) from public';
-  execute 'grant execute on function public.create_pathway_application(text,text,text,jsonb,integer,text) to anon,authenticated';
-  execute 'grant execute on function public.load_pathway_application(text) to anon,authenticated';
-  execute 'grant execute on function public.save_pathway_application(text,text,text,jsonb,integer,text) to anon,authenticated';
-end;
-$permissions$;
+-- Supabase API roles can execute public functions by default. Direct anonymous
+-- table reads and updates remain revoked and protected by row-level security.
 
 -- Public users can access only a record whose complete, unguessable application number they possess.
 -- After creating your Supabase Auth user, authorize it once with:
 -- insert into public.admin_users(user_id) select id from auth.users where email='YOUR_ADMIN_EMAIL';
+
+-- Verification: a successful run returns all three function names.
+select p.proname as application_function
+from pg_proc p
+join pg_namespace n on n.oid=p.pronamespace
+where n.nspname='public'
+  and p.proname in('create_pathway_application','load_pathway_application','save_pathway_application')
+order by p.proname;
