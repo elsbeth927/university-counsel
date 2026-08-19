@@ -4,7 +4,7 @@ create table if not exists public.student_pathways(id uuid primary key default g
 alter table public.student_pathways add column if not exists application_number text;
 alter table public.student_pathways add column if not exists last_step smallint not null default 0;
 
-update public.student_pathways set application_number='RB26-'||upper(substr(encode(gen_random_bytes(10),'hex'),1,5))||'-'||upper(substr(encode(gen_random_bytes(10),'hex'),1,5))||'-'||upper(substr(encode(gen_random_bytes(10),'hex'),1,5))||'-'||upper(substr(encode(gen_random_bytes(10),'hex'),1,5)) where application_number is null;
+update public.student_pathways set application_number='RB26-'||upper(substr(encode(extensions.gen_random_bytes(10),'hex'),1,5))||'-'||upper(substr(encode(extensions.gen_random_bytes(10),'hex'),1,5))||'-'||upper(substr(encode(extensions.gen_random_bytes(10),'hex'),1,5))||'-'||upper(substr(encode(extensions.gen_random_bytes(10),'hex'),1,5)) where application_number is null;
 create unique index if not exists student_pathways_application_number_key on public.student_pathways(application_number);
 alter table public.student_pathways alter column application_number set not null;
 alter table public.student_pathways enable row level security;
@@ -26,7 +26,7 @@ declare v_number text;v_random text;
 begin
   if p_status not in('draft','submitted') then raise exception 'Invalid status';end if;
   loop
-    v_random:=upper(encode(gen_random_bytes(10),'hex'));
+    v_random:=upper(encode(extensions.gen_random_bytes(10),'hex'));
     v_number:='RB26-'||substr(v_random,1,5)||'-'||substr(v_random,6,5)||'-'||substr(v_random,11,5)||'-'||substr(v_random,16,5);
     begin
       insert into public.student_pathways(application_number,student_name,grade,academic_year,form_data,last_step,status,submitted_at,updated_at) values(v_number,nullif(p_student_name,''),nullif(p_grade,''),coalesce(p_academic_year,'2026–2027'),coalesce(p_form_data,'{}'::jsonb),greatest(0,least(4,p_last_step)),p_status,now(),now());
