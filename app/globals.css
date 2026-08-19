@@ -62,6 +62,7 @@ fieldset{border:0;padding:0;margin:0 0 24px}
 .confirm input{width:18px;height:18px}
 footer{display:flex;justify-content:space-between;padding:20px 0}
 footer button{border:0;padding:14px 22px;font-weight:800;cursor:pointer}
+.footer-actions{display:flex;gap:10px;align-items:center}.footer-actions .save{background:#e5eee9;color:var(--green);border:1px solid #c7d9d1}.footer-actions .save:hover{background:#d9e8e1}
 .back{background:transparent;color:var(--muted)}
 .back:disabled{opacity:.3}
 .next{background:var(--green);color:#fff;min-width:180px}
