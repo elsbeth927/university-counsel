@@ -46,12 +46,18 @@ begin
   return found;
 end;$$;
 
-revoke all on function public.create_pathway_application(text,text,text,jsonb,integer,text) from public;
-revoke all on function public.load_pathway_application(text) from public;
-revoke all on function public.save_pathway_application(text,text,text,jsonb,integer,text) from public;
-grant execute on function public.create_pathway_application(text,text,text,jsonb,integer,text) to anon,authenticated;
-grant execute on function public.load_pathway_application(text) to anon,authenticated;
-grant execute on function public.save_pathway_application(text,text,text,jsonb,integer,text) to anon,authenticated;
+-- Apply permissions dynamically so Supabase resolves the functions only after
+-- the CREATE FUNCTION statements above have completed.
+do $permissions$
+begin
+  execute 'revoke all on function public.create_pathway_application(text,text,text,jsonb,integer,text) from public';
+  execute 'revoke all on function public.load_pathway_application(text) from public';
+  execute 'revoke all on function public.save_pathway_application(text,text,text,jsonb,integer,text) from public';
+  execute 'grant execute on function public.create_pathway_application(text,text,text,jsonb,integer,text) to anon,authenticated';
+  execute 'grant execute on function public.load_pathway_application(text) to anon,authenticated';
+  execute 'grant execute on function public.save_pathway_application(text,text,text,jsonb,integer,text) to anon,authenticated';
+end;
+$permissions$;
 
 -- Public users can access only a record whose complete, unguessable application number they possess.
 -- After creating your Supabase Auth user, authorize it once with:
